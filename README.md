@@ -2,7 +2,9 @@
 
 AlertaVía es una aplicación web para que los ciudadanos reporten problemas en las vías de la ciudad (huecos, semáforos dañados, señalización deteriorada e inundaciones) adjuntando una foto y la ubicación del lugar. La plataforma organiza los reportes, los asigna a la entidad de movilidad encargada y permite hacer seguimiento a su estado hasta que el problema queda resuelto.
 
-**[Ver la Wiki del proyecto](https://github.com/Santiago425/AlertaVia-Diseno-de-Software/wiki)**
+**[Ver la aplicación desplegada](https://alertavia.vercel.app)** · **[API (Swagger)](https://alertavia-backend.onrender.com/swagger-ui.html)** · **[Wiki del proyecto](https://github.com/Santiago425/AlertaVia-Diseno-de-Software/wiki)**
+
+> El backend está en el plan gratuito de Render: si lleva un rato sin uso, la primera petición puede tardar cerca de un minuto mientras el servidor arranca.
 
 ## Funcionalidades principales
 
