@@ -130,7 +130,7 @@ Las pruebas revisan el flujo de estados del reporte y el recorrido completo: reg
 | Base de datos | Render PostgreSQL | `render.yaml` |
 | Frontend | Vercel | Carpeta raíz `frontend`, variable `VITE_API_URL` con la URL del backend |
 
-Variables de entorno del backend (ver `backend/.env.example`): `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `JWT_SECRET`, `ADMIN_PASSWORD`, `CORS_ALLOWED_ORIGINS`, `PUBLIC_API_URL`, `GOOGLE_MAPS_API_KEY`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` y los datos `SMTP_*` para enviar correos. Si no se configuran Cloudinary o SMTP, las fotos se guardan en el servidor y las notificaciones quedan solo dentro de la aplicación.
+Variables de entorno del backend (ver `backend/.env.example`): `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `JWT_SECRET` (mínimo 32 caracteres), `ADMIN_PASSWORD`, `CORS_ALLOWED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` y los datos `SMTP_*` para enviar correos. Si no se configuran Cloudinary o SMTP, las fotos se guardan en el servidor y las notificaciones quedan solo dentro de la aplicación.
 
 ## API REST
 

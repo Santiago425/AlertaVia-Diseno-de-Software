@@ -5,9 +5,20 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile
     plan: free
+    region: ohio
     envVars:
-      - key: DATABASE_URL
-        sync: false
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: alertavia-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: alertavia-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: alertavia-db
+          property: database
       - key: DATABASE_USERNAME
         fromDatabase:
           name: alertavia-db
@@ -17,24 +28,14 @@ services:
           name: alertavia-db
           property: password
       - key: JWT_SECRET
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
+        generateValue: true
       - key: CORS_ALLOWED_ORIGINS
-        value: https://*.vercel.app
-      - key: PUBLIC_API_URL
-        sync: false
-      - key: GOOGLE_MAPS_API_KEY
-        sync: false
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-      - key: CLOUDINARY_API_KEY
-        sync: false
-      - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: https://*.vercel.app,http://localhost:5173
 
 databases:
   - name: alertavia-db
     databaseName: alertavia_db
-    user: alertavia
+    user: alertavia_db_user
     plan: free
+    region: ohio
+    postgresMajorVersion: "16"
