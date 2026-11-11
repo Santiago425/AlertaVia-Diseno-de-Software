@@ -34,48 +34,48 @@ function AdminActions({ report, entities, onUpdated }) {
     }
   };
 
+  if (nextOptions.length === 0) {
+    return null;
+  }
+
   return (
     <div className="admin-actions">
-      {nextOptions.length > 0 && (
-        <div className="action-row">
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            {nextOptions.map((value) => (
-              <option key={value} value={value}>
-                {STATUS_LABELS[value]}
-              </option>
-            ))}
-          </select>
-          <input placeholder="Comentario para el ciudadano" value={comment} onChange={(e) => setComment(e.target.value)} />
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={saving || !status}
-            onClick={() => run(() => changeStatus(report.id, status, comment))}
-          >
-            Cambiar estado
-          </button>
-        </div>
-      )}
-      {report.status !== 'REJECTED' && report.status !== 'RESOLVED' && (
-        <div className="action-row">
-          <select value={entityId} onChange={(e) => setEntityId(e.target.value)}>
-            <option value="">Selecciona una entidad de movilidad</option>
-            {entities.map((entity) => (
-              <option key={entity.id} value={entity.id}>
-                {entity.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            disabled={saving || !entityId}
-            onClick={() => run(() => assignEntity(report.id, entityId))}
-          >
-            Asignar entidad
-          </button>
-        </div>
-      )}
+      <div className="action-row">
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          {nextOptions.map((value) => (
+            <option key={value} value={value}>
+              {STATUS_LABELS[value]}
+            </option>
+          ))}
+        </select>
+        <input placeholder="Comentario para el ciudadano" value={comment} onChange={(e) => setComment(e.target.value)} />
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={saving || !status}
+          onClick={() => run(() => changeStatus(report.id, status, comment))}
+        >
+          Cambiar estado
+        </button>
+      </div>
+      <div className="action-row">
+        <select value={entityId} onChange={(e) => setEntityId(e.target.value)}>
+          <option value="">Selecciona una entidad de movilidad</option>
+          {entities.map((entity) => (
+            <option key={entity.id} value={entity.id}>
+              {entity.name}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          disabled={saving || !entityId}
+          onClick={() => run(() => assignEntity(report.id, entityId))}
+        >
+          Asignar entidad
+        </button>
+      </div>
       {error && <p className="alert alert-error">{error}</p>}
     </div>
   );
