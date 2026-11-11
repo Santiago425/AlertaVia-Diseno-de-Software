@@ -9,4 +9,4 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/alertavia-backend.jar alertavia-backend.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "alertavia-backend.jar"]
+ENTRYPOINT ["java", "-XX:+UseSerialGC", "-XX:TieredStopAtLevel=1", "-XX:MaxRAMPercentage=75", "-Xss512k", "-jar", "alertavia-backend.jar"]

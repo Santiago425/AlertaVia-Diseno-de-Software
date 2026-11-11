@@ -9,8 +9,32 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      BACKEND_URL: https://alertavia-backend.onrender.com
     steps:
       - name: Visitar el backend en Render
         run: |
-          status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 https://alertavia-backend.onrender.com/v3/api-docs || echo "000")
-          echo "Respuesta del backend: $status"
+          start=$(date +%s)
+          status=000
+          for attempt in 1 2 3 4 5; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$BACKEND_URL/api/auth/me" || true)
+            echo "Intento $attempt: HTTP $status"
+            if [ "$status" != "000" ] && [ "${status:0:1}" != "5" ]; then
+              break
+            fi
+            sleep 10
+          done
+          elapsed=$(( $(date +%s) - start ))
+          {
+            echo "### Backend de AlertaVía"
+            echo ""
+            echo "| URL | Respuesta | Tiempo |"
+            echo "|-----|-----------|--------|"
+            echo "| $BACKEND_URL | HTTP $status | ${elapsed} s |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" = "000" ] || [ "${status:0:1}" = "5" ]; then
+            echo "::warning::El backend no respondió después de ${elapsed} segundos"
+          else
+            echo "Backend activo (HTTP $status) en ${elapsed} s"
+          fi
