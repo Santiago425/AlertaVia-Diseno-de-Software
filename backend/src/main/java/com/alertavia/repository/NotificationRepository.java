@@ -1,0 +1,12 @@
+package com.alertavia.repository;
+
+import com.alertavia.model.Notification;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
+    List<Notification> findByCitizenIdOrderBySentAtDesc(Long citizenId);
+
+    long countByCitizenIdAndReadFalse(Long citizenId);
+}
