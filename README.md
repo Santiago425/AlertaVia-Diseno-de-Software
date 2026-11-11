@@ -40,7 +40,7 @@ Las cuentas aparecen también en la pantalla de inicio, con un botón que llena 
 | Administrador | `admin@alertavia.com` | `admin123` |
 | Ciudadano | `ciudadano@alertavia.com` | `ciudadano123` |
 
-> El backend está en el plan gratuito de Render: si lleva un rato sin uso, la primera petición puede tardar cerca de un minuto mientras el servidor arranca.
+> El backend está en el plan gratuito de Render. El workflow `keep-alive.yml` lo visita cada 10 minutos entre las 6:00 a. m. y las 10:00 p. m. (hora de Colombia) para que no se apague; fuera de ese horario la primera petición puede tardar cerca de un minuto.
 
 ## 🚀 Características principales
 
@@ -146,7 +146,7 @@ AlertaVia-Diseno-de-Software/
 │   └── imagenes/                Diagramas exportados en PNG
 ├── docs/                        Capturas de la aplicación y diagramas de flujo
 ├── wiki/                        Copia de las páginas de la wiki
-├── .github/workflows/ci.yml     Compilación y pruebas automáticas
+├── .github/workflows/          ci.yml (compilación y pruebas) y keep-alive.yml (mantiene el backend activo)
 ├── docker-compose.yml           PostgreSQL + backend para correr en local
 └── render.yaml                  Despliegue del backend y la base de datos en Render
 ```
