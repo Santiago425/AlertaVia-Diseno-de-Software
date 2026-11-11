@@ -695,8 +695,14 @@ legend {
 }
 
 .filter-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
-  max-width: 260px;
+}
+
+.filter-row label {
+  width: 240px;
 }
 
 .admin-actions {

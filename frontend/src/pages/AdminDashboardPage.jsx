@@ -86,6 +86,7 @@ export default function AdminDashboardPage() {
   const [entities, setEntities] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [filter, setFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -99,17 +100,17 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     setLoading(true);
-    getReports(filter)
+    getReports(filter, typeFilter)
       .then(setReports)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [filter]);
+  }, [filter, typeFilter]);
 
   const handleUpdated = (updated) => {
     setReports(
       reports
         .map((report) => (report.id === updated.id ? updated : report))
-        .filter((report) => !filter || report.status === filter),
+        .filter((report) => (!filter || report.status === filter) && (!typeFilter || report.type === typeFilter)),
     );
     loadStatistics();
   };
@@ -160,6 +161,17 @@ export default function AdminDashboardPage() {
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="">Todos</option>
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Filtrar por tipo
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+            <option value="">Todos</option>
+            {Object.entries(REPORT_TYPES).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
               </option>

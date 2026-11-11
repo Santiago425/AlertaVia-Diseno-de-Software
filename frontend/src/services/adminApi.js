@@ -1,8 +1,15 @@
 import { apiClient } from './apiClient';
 
-export function getReports(status) {
-  const query = status ? `?status=${status}` : '';
-  return apiClient(`/api/admin/reports${query}`);
+export function getReports(status, type) {
+  const params = new URLSearchParams();
+  if (status) {
+    params.set('status', status);
+  }
+  if (type) {
+    params.set('type', type);
+  }
+  const query = params.toString();
+  return apiClient(`/api/admin/reports${query ? `?${query}` : ''}`);
 }
 
 export function changeStatus(reportId, status, comment) {

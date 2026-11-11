@@ -101,6 +101,11 @@ class AlertaViaApplicationTests {
                                 """))
                 .andExpect(status().isBadRequest());
 
+        mockMvc.perform(get("/api/admin/reports?type=FLOODING")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+
         mockMvc.perform(get("/api/admin/statistics").header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.total").value(1));

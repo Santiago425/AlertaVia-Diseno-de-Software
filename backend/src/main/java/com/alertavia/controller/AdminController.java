@@ -5,6 +5,7 @@ import com.alertavia.dto.StatusUpdateRequest;
 import com.alertavia.model.Administrator;
 import com.alertavia.model.MobilityEntity;
 import com.alertavia.model.ReportStatus;
+import com.alertavia.model.ReportType;
 import com.alertavia.service.AuthService;
 import com.alertavia.service.ReportService;
 import com.alertavia.service.TrackingService;
@@ -35,8 +36,9 @@ public class AdminController {
     }
 
     @GetMapping("/reports")
-    public List<ReportResponse> reports(@RequestParam(required = false) ReportStatus status) {
-        return reportService.getAllReports(status);
+    public List<ReportResponse> reports(@RequestParam(required = false) ReportStatus status,
+                                        @RequestParam(required = false) ReportType type) {
+        return reportService.getAllReports(status, type);
     }
 
     @PutMapping("/reports/{id}/status")

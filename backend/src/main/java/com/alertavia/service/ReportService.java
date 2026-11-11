@@ -59,11 +59,14 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReportResponse> getAllReports(ReportStatus status) {
+    public List<ReportResponse> getAllReports(ReportStatus status, ReportType type) {
         List<Report> reports = status == null
                 ? reportRepository.findAllByOrderByCreatedAtDesc()
                 : reportRepository.findByStatusOrderByCreatedAtDesc(status);
-        return reports.stream().map(ReportResponse::from).toList();
+        return reports.stream()
+                .filter(report -> type == null || report.getType() == type)
+                .map(ReportResponse::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)
