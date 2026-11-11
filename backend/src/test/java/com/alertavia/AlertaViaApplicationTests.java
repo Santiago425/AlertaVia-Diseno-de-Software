@@ -132,6 +132,14 @@ class AlertaViaApplicationTests {
                 .andExpect(status().isUnauthorized());
 
         mockMvc.perform(get("/api/reports/mine")).andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"ciudadano@alertavia.com","password":"ciudadano123"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("CITIZEN"));
     }
 
     private String token(String json) throws Exception {

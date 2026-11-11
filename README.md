@@ -113,7 +113,14 @@ Los paquetes del backend y del frontend son los mismos de la **vista de desarrol
    ```
    La aplicación queda en `http://localhost:5173`.
 
-Al iniciar, el backend crea un administrador (`admin@alertavia.com` / `admin123` en desarrollo) y las entidades de movilidad. Los ciudadanos se registran desde la pantalla de inicio.
+Al iniciar, el backend crea las entidades de movilidad y dos cuentas de prueba, que también aparecen en la pantalla de inicio:
+
+| Rol | Usuario | Contraseña |
+|-----|---------|------------|
+| Administrador | `admin@alertavia.com` | `admin123` |
+| Ciudadano | `ciudadano@alertavia.com` | `ciudadano123` |
+
+Los demás ciudadanos se registran desde la pantalla de inicio.
 
 ### Pruebas
 

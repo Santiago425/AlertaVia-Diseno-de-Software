@@ -4,6 +4,11 @@ import { useAuth } from '../auth/AuthContext';
 
 const EMPTY_FORM = { name: '', email: '', password: '', phone: '' };
 
+const DEMO_ACCOUNTS = [
+  { role: 'Administrador', email: 'admin@alertavia.com', password: 'admin123' },
+  { role: 'Ciudadano', email: 'ciudadano@alertavia.com', password: 'ciudadano123' },
+];
+
 export default function LoginPage() {
   const { user, login, register } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +26,12 @@ export default function LoginPage() {
   const switchMode = (next) => {
     setMode(next);
     setError('');
+  };
+
+  const useDemoAccount = (account) => {
+    setMode('login');
+    setError('');
+    setForm({ ...EMPTY_FORM, email: account.email, password: account.password });
   };
 
   const handleSubmit = async (event) => {
@@ -50,6 +61,21 @@ export default function LoginPage() {
           <li>Recibe notificaciones de cada cambio de estado</li>
           <li>Tu reporte llega a la entidad de movilidad encargada</li>
         </ul>
+        <div className="demo-accounts">
+          <h2>Cuentas de prueba</h2>
+          {DEMO_ACCOUNTS.map((account) => (
+            <div key={account.email} className="demo-account">
+              <div>
+                <strong>{account.role}</strong>
+                <span>Usuario: {account.email}</span>
+                <span>Contraseña: {account.password}</span>
+              </div>
+              <button type="button" className="btn btn-secondary" onClick={() => useDemoAccount(account)}>
+                Usar
+              </button>
+            </div>
+          ))}
+        </div>
       </section>
       <section className="card auth-card">
         <div className="tabs">
