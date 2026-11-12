@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import ReportCard from '../components/ReportCard';
+import StatisticsCharts from '../components/StatisticsCharts';
 import { STATUS_LABELS } from '../components/StatusBadge';
 import { assignEntity, changeStatus, getEntities, getReports, getStatistics } from '../services/adminApi';
 import { REPORT_TYPES } from '../services/reportApi';
@@ -115,8 +116,6 @@ export default function AdminDashboardPage() {
     loadStatistics();
   };
 
-  const maxByType = statistics ? Math.max(1, ...Object.values(statistics.byType)) : 1;
-
   return (
     <div className="page">
       <h1>Panel administrativo</h1>
@@ -138,22 +137,7 @@ export default function AdminDashboardPage() {
         </section>
       )}
 
-      {statistics && (
-        <section className="card">
-          <h2>Reportes por tipo de problema</h2>
-          <div className="bars">
-            {Object.entries(statistics.byType).map(([type, count]) => (
-              <div key={type} className="bar-row">
-                <span className="bar-label">{REPORT_TYPES[type]}</span>
-                <div className="bar-track">
-                  <div className="bar-fill" style={{ width: `${(count / maxByType) * 100}%` }} />
-                </div>
-                <span className="bar-value">{count}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {statistics && <StatisticsCharts statistics={statistics} />}
 
       <div className="filter-row">
         <label>

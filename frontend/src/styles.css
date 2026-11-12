@@ -664,34 +664,14 @@ legend {
   font-size: 0.9rem;
 }
 
-.bars {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.bar-row {
+.charts {
   display: grid;
-  grid-template-columns: 200px 1fr 40px;
-  align-items: center;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
 }
 
-.bar-track {
-  height: 14px;
-  background: #edf2f7;
-  border-radius: 7px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  background: var(--accent);
-}
-
-.bar-value {
-  font-weight: 600;
-  text-align: right;
+.chart-card {
+  margin-bottom: 20px;
 }
 
 .filter-row {
@@ -736,9 +716,5 @@ legend {
   .report-photo img,
   .no-photo {
     max-height: 220px;
-  }
-
-  .bar-row {
-    grid-template-columns: 1fr 2fr 32px;
   }
 }
