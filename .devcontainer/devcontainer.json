@@ -1,0 +1,32 @@
+{
+  "name": "AlertaVía",
+  "image": "mcr.microsoft.com/devcontainers/java:1-17-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "installMaven": "true"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+        "ckolkman.vscode-postgres"
+      ]
+    }
+  },
+  "forwardPorts": [5173, 8080, 5432],
+  "portsAttributes": {
+    "5173": { "label": "Frontend" },
+    "8080": { "label": "Backend" },
+    "5432": { "label": "PostgreSQL" }
+  },
+  "postCreateCommand": "cd backend && ./mvnw -B -q dependency:go-offline && cd ../frontend && npm ci"
+}
