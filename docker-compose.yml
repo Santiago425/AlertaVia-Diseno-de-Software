@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:16
+    container_name: alertavia-postgres
     environment:
       POSTGRES_DB: alertavia_db
       POSTGRES_USER: alertavia
@@ -9,18 +10,41 @@ services:
       - "5432:5432"
     volumes:
       - alertavia-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alertavia -d alertavia_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     build: ./backend
+    container_name: alertavia-backend
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
-      DATABASE_URL: jdbc:postgresql://postgres:5432/alertavia_db
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: alertavia_db
       DATABASE_USERNAME: alertavia
       DATABASE_PASSWORD: alertavia
-      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000
     ports:
       - "8080:8080"
+    volumes:
+      - alertavia-uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: alertavia-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   alertavia-data:
+  alertavia-uploads:
