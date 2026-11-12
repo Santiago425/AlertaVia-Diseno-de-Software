@@ -10,9 +10,9 @@
 
 AlertaVía es una aplicación web para que los ciudadanos reporten problemas en las vías de la ciudad (huecos, semáforos dañados, señalización deteriorada e inundaciones) adjuntando fotos y la ubicación del lugar. La plataforma organiza los reportes, los asigna a la entidad de movilidad encargada y permite hacer seguimiento a su estado hasta que el problema queda resuelto.
 
-| 🌐 Aplicación | 📡 API (Swagger) | 📚 Wiki | 📝 Historias de usuario |
-|:---:|:---:|:---:|:---:|
-| [alertavia.vercel.app](https://alertavia.vercel.app) | [alertavia-backend.onrender.com](https://alertavia-backend.onrender.com/swagger-ui.html) | [Ver wiki](https://github.com/Santiago425/AlertaVia-Diseno-de-Software/wiki) | [Ver issues](https://github.com/Santiago425/AlertaVia-Diseno-de-Software/issues) |
+| 🌐 Aplicación | 📡 API (Swagger) | 📚 Wiki | 📝 Historias de usuario | 📄 Implementación |
+|:---:|:---:|:---:|:---:|:---:|
+| [alertavia.vercel.app](https://alertavia.vercel.app) | [alertavia-backend.onrender.com](https://alertavia-backend.onrender.com/swagger-ui.html) | [Ver wiki](https://github.com/Santiago425/AlertaVia-Diseno-de-Software/wiki) | [Ver issues](https://github.com/Santiago425/AlertaVia-Diseno-de-Software/issues) | [Resumen](IMPLEMENTATION_SUMMARY.md) |
 
 ![Pantalla de inicio](docs/capturas/01-inicio-de-sesion.png)
 
@@ -52,7 +52,7 @@ Las cuentas aparecen también en la pantalla de inicio, con un botón que llena 
 - Notificaciones en la aplicación y por correo cuando el reporte cambia de estado o es asignado.
 
 **Administrador**
-- Panel con estadísticas por estado y por tipo de problema.
+- Panel con indicadores y gráficas (Recharts) de reportes por estado y por tipo de problema.
 - Filtros de reportes por estado y por tipo.
 - Validación o rechazo de reportes con comentario para el ciudadano.
 - Asignación del reporte a la entidad de movilidad encargada.
@@ -62,7 +62,7 @@ Las cuentas aparecen también en la pantalla de inicio, con un botón que llena 
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | React 18 + Vite, React Router (desplegado en Vercel) |
+| Frontend | React 18 + Vite, React Router y Recharts (desplegado en Vercel) |
 | Backend | Java 17 + Spring Boot 3: Web, Data JPA, Security, Validation y Mail (desplegado en Render con Docker) |
 | Seguridad | JWT y BCrypt |
 | Base de datos | PostgreSQL 16 |
@@ -70,7 +70,8 @@ Las cuentas aparecen también en la pantalla de inicio, con un botón que llena 
 | Almacenamiento de fotos | Cloudinary |
 | Notificaciones | En la aplicación y por correo SMTP |
 | Documentación de la API | Swagger (springdoc-openapi) |
-| Pruebas e integración continua | JUnit 5, MockMvc, H2 y GitHub Actions |
+| Pruebas e integración continua | JUnit 5, Mockito, MockMvc, H2 y GitHub Actions |
+| Entorno de desarrollo | Maven Wrapper, Docker Compose y Dev Container |
 | Modelado | Visual Paradigm |
 
 ## 🏗️ Arquitectura (modelo 4+1)
@@ -125,6 +126,7 @@ Los paquetes del código son los mismos de la **vista de desarrollo** y las clas
 AlertaVia-Diseno-de-Software/
 ├── backend/                     API REST (Java 17 + Spring Boot)
 │   ├── Dockerfile
+│   ├── mvnw / mvnw.cmd          Maven Wrapper
 │   └── src/main/java/com/alertavia/
 │       ├── config/              Seguridad, CORS, Swagger y datos iniciales
 │       ├── security/            JWT y carga de usuarios
@@ -135,7 +137,7 @@ AlertaVia-Diseno-de-Software/
 │       ├── integration/         Google Maps, Cloudinary y correo
 │       ├── repository/          Acceso a datos con Spring Data JPA
 │       └── model/               Entidades del dominio (vista lógica)
-├── frontend/                    Aplicación web (React + Vite)
+├── frontend/                    Aplicación web (React + Vite), con Dockerfile y nginx
 │   └── src/
 │       ├── pages/               Inicio de sesión, nuevo reporte, mis reportes y panel admin
 │       ├── components/          Mapa, fotos, tarjeta de reporte y estado
@@ -147,13 +149,16 @@ AlertaVia-Diseno-de-Software/
 ├── docs/                        Capturas de la aplicación y diagramas de flujo
 ├── wiki/                        Copia de las páginas de la wiki
 ├── .github/workflows/          ci.yml (compilación y pruebas) y keep-alive.yml (mantiene el backend activo)
-├── docker-compose.yml           PostgreSQL + backend para correr en local
+├── .devcontainer/               Entorno listo para VS Code o Codespaces
+├── docker-compose.yml           Sistema completo en contenedores (PostgreSQL, backend y frontend)
+├── run.sh                       Levanta todo el proyecto en local con un comando
+├── IMPLEMENTATION_SUMMARY.md    Resumen de lo implementado y su relación con los diagramas
 └── render.yaml                  Despliegue del backend y la base de datos en Render
 ```
 
 ## 🔧 Ejecución local
 
-**Requisitos:** Java 17, Maven, Node.js 20 o superior y PostgreSQL (o Docker).
+**Requisitos:** Java 17, Node.js 20 o superior y Docker (o PostgreSQL instalado). No hace falta instalar Maven: el proyecto trae el Maven Wrapper.
 
 ### 1. Clonar el repositorio
 
@@ -162,45 +167,68 @@ git clone https://github.com/Santiago425/AlertaVia-Diseno-de-Software.git
 cd AlertaVia-Diseno-de-Software
 ```
 
-### 2. Levantar la base de datos y el backend
+### 2. Opción rápida: un solo comando
 
-Con Docker:
+```bash
+./run.sh
+```
+
+Levanta PostgreSQL (con Docker si no está corriendo), el backend y el frontend, y muestra los enlaces y las cuentas de prueba.
+
+### 3. Opción con Docker Compose (todo en contenedores)
 
 ```bash
 docker compose up --build
 ```
 
-O sin Docker, con la base `alertavia_db` creada en PostgreSQL:
+| Servicio | URL |
+|----------|-----|
+| Frontend | `http://localhost:3000` |
+| Backend | `http://localhost:8080` |
+| Swagger | `http://localhost:8080/swagger-ui.html` |
+
+### 4. Opción manual
 
 ```bash
+# Backend (con la base alertavia_db creada en PostgreSQL)
 cd backend
-mvn spring-boot:run
-```
+./mvnw spring-boot:run
 
-La API queda en `http://localhost:8080` y Swagger en `http://localhost:8080/swagger-ui.html`.
-
-### 3. Levantar el frontend
-
-```bash
+# Frontend, en otra terminal
 cd frontend
 cp .env.example .env
 npm install
 npm run dev
 ```
 
-La aplicación queda en `http://localhost:5173`. Al iniciar, el backend crea las entidades de movilidad y las cuentas de prueba.
+La aplicación queda en `http://localhost:5173` y la API en `http://localhost:8080`.
+
+### 5. Dev Container
+
+El proyecto se puede abrir en **VS Code → Reopen in Container** o en **GitHub Codespaces**: el contenedor trae Java 17, Node 20 y Docker, y descarga las dependencias automáticamente.
+
+Al iniciar, el backend crea las entidades de movilidad y las cuentas de prueba.
 
 ## 🧪 Pruebas
 
 ```bash
 cd backend
-mvn verify
+./mvnw verify
 ```
 
-- `ReportTest`: flujo de estados, prohibición de saltar estados, asignación de entidad, URL del mapa y notificaciones.
-- `AlertaViaApplicationTests`: recorrido completo de registro, reporte con foto, permisos por rol, validación, asignación, filtros, estadísticas y notificaciones.
+**39 pruebas, 0 fallos:**
 
-GitHub Actions ejecuta las pruebas del backend y la compilación del frontend en cada push.
+| Clase | Tipo | Qué verifica |
+|-------|------|--------------|
+| `ReportTest` | Unitaria | Flujo de estados, asignación de entidad, URL del mapa y notificaciones |
+| `ReportStatusTest` | Unitaria parametrizada | Transiciones permitidas y prohibidas y etiquetas en español |
+| `AuthServiceTest` | Unitaria (Mockito) | Registro, correo duplicado, roles y usuario inexistente |
+| `TrackingServiceTest` | Unitaria (Mockito) | Cambio de estado, notificaciones, transición inválida y asignación |
+| `PhotoStorageServiceTest` | Unitaria (Mockito) | Mínimo una foto, máximo tres y solo imágenes |
+| `LocationServiceTest` | Unitaria (Mockito) | Dirección escrita, Google Maps y coordenadas de respaldo |
+| `AlertaViaApplicationTests` | Integración (MockMvc + H2) | Recorrido completo por la API con permisos por rol |
+
+GitHub Actions ejecuta las pruebas, compila el frontend y construye las imágenes Docker en cada push.
 
 ## ☁️ Despliegue
 
