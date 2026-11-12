@@ -10,3 +10,6 @@ frontend/dist/
 .DS_Store
 *.vpp.bak*
 *.vpp.lck
+
+backend.log
+frontend.log
