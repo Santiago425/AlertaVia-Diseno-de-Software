@@ -2,11 +2,11 @@ package com.alertavia.repository;
 
 import com.alertavia.model.Notification;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository extends MongoRepository<Notification, String> {
 
-    List<Notification> findByCitizenIdOrderBySentAtDesc(Long citizenId);
+    List<Notification> findByCitizenIdOrderBySentAtDesc(String citizenId);
 
-    long countByCitizenIdAndReadFalse(Long citizenId);
+    long countByCitizenIdAndReadFalse(String citizenId);
 }
