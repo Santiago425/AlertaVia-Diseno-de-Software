@@ -1,21 +1,16 @@
 package com.alertavia.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "mobility_entities")
+@Document(collection = "mobility_entities")
 public class MobilityEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, unique = true)
+    @Indexed(unique = true)
     private String name;
 
     private String zone;
@@ -29,10 +24,10 @@ public class MobilityEntity {
     }
 
     public void receiveReport(Report report) {
-        report.setMobilityEntity(this);
+        report.assignTo(id, name);
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

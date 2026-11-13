@@ -1,45 +1,32 @@
 package com.alertavia.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "notifications")
+@Document(collection = "notifications")
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
     private String message;
 
     private LocalDateTime sentAt;
 
-    @Column(name = "is_read")
     private boolean read;
 
-    private Long reportId;
+    private String reportId;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "citizen_id")
-    private Citizen citizen;
+    @Indexed
+    private String citizenId;
 
     protected Notification() {
     }
 
-    public Notification(Citizen citizen, Long reportId, String message) {
-        this.citizen = citizen;
+    public Notification(String citizenId, String reportId, String message) {
+        this.citizenId = citizenId;
         this.reportId = reportId;
         this.message = message;
         this.sentAt = LocalDateTime.now();
@@ -50,7 +37,7 @@ public class Notification {
         this.read = true;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
@@ -66,11 +53,11 @@ public class Notification {
         return read;
     }
 
-    public Long getReportId() {
+    public String getReportId() {
         return reportId;
     }
 
-    public Citizen getCitizen() {
-        return citizen;
+    public String getCitizenId() {
+        return citizenId;
     }
 }

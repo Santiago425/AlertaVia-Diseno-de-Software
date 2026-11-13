@@ -1,82 +1,61 @@
 package com.alertavia.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "reports")
+@Document(collection = "reports")
 public class Report {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false, length = 1000)
     private String description;
 
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Indexed
     private ReportType type;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Indexed
     private ReportStatus status;
 
-    @Embedded
     private Location location;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "citizen_id", nullable = false)
-    private Citizen citizen;
+    @Indexed
+    private String citizenId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewed_by")
-    private Administrator reviewedBy;
+    private String citizenName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mobility_entity_id")
-    private MobilityEntity mobilityEntity;
+    private String reviewedById;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String mobilityEntityId;
+
+    private String mobilityEntityName;
+
     private List<Photo> photos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("changedAt ASC")
     private List<StatusChange> history = new ArrayList<>();
 
     protected Report() {
     }
 
     Report(Citizen citizen, String description, ReportType type, Location location) {
-        this.citizen = citizen;
+        this.citizenId = citizen.getId();
+        this.citizenName = citizen.getName();
         this.description = description;
         this.type = type;
         this.location = location;
         this.status = ReportStatus.REPORTED;
         this.createdAt = LocalDateTime.now();
-        this.history.add(new StatusChange(this, null, ReportStatus.REPORTED, "Reporte creado por el ciudadano"));
+        this.history.add(new StatusChange(null, ReportStatus.REPORTED, "Reporte creado por el ciudadano"));
     }
 
     public void addPhoto(Photo photo) {
-        photo.setReport(this);
         photos.add(photo);
     }
 
@@ -85,7 +64,7 @@ public class Report {
             throw new IllegalStateException(
                     "No se puede pasar de " + status.label() + " a " + newStatus.label());
         }
-        StatusChange change = new StatusChange(this, status, newStatus, comment);
+        StatusChange change = new StatusChange(status, newStatus, comment);
         history.add(change);
         status = newStatus;
         return change;
@@ -95,7 +74,23 @@ public class Report {
         return history;
     }
 
-    public Long getId() {
+    public String getCode() {
+        if (id == null) {
+            return "";
+        }
+        return id.substring(Math.max(0, id.length() - 6)).toUpperCase(Locale.ROOT);
+    }
+
+    void setReviewedById(String reviewedById) {
+        this.reviewedById = reviewedById;
+    }
+
+    void assignTo(String entityId, String entityName) {
+        this.mobilityEntityId = entityId;
+        this.mobilityEntityName = entityName;
+    }
+
+    public String getId() {
         return id;
     }
 
@@ -119,24 +114,24 @@ public class Report {
         return location;
     }
 
-    public Citizen getCitizen() {
-        return citizen;
+    public String getCitizenId() {
+        return citizenId;
     }
 
-    public Administrator getReviewedBy() {
-        return reviewedBy;
+    public String getCitizenName() {
+        return citizenName;
     }
 
-    void setReviewedBy(Administrator reviewedBy) {
-        this.reviewedBy = reviewedBy;
+    public String getReviewedById() {
+        return reviewedById;
     }
 
-    public MobilityEntity getMobilityEntity() {
-        return mobilityEntity;
+    public String getMobilityEntityId() {
+        return mobilityEntityId;
     }
 
-    void setMobilityEntity(MobilityEntity mobilityEntity) {
-        this.mobilityEntity = mobilityEntity;
+    public String getMobilityEntityName() {
+        return mobilityEntityName;
     }
 
     public List<Photo> getPhotos() {

@@ -1,10 +1,10 @@
 package com.alertavia.model;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@DiscriminatorValue("ADMIN")
+@Document(collection = "users")
+@TypeAlias("ADMIN")
 public class Administrator extends User {
 
     private String position;
@@ -18,17 +18,17 @@ public class Administrator extends User {
     }
 
     public void validateReport(Report report) {
-        report.setReviewedBy(this);
+        report.setReviewedById(getId());
         report.updateStatus(ReportStatus.IN_REVIEW, "Reporte validado por el administrador");
     }
 
     public StatusChange changeStatus(Report report, ReportStatus status, String comment) {
-        report.setReviewedBy(this);
+        report.setReviewedById(getId());
         return report.updateStatus(status, comment);
     }
 
     public void assignEntity(Report report, MobilityEntity entity) {
-        report.setReviewedBy(this);
+        report.setReviewedById(getId());
         entity.receiveReport(report);
     }
 

@@ -1,22 +1,13 @@
 package com.alertavia.model;
 
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@DiscriminatorValue("CITIZEN")
+@Document(collection = "users")
+@TypeAlias("CITIZEN")
 public class Citizen extends User {
 
     private String phone;
-
-    @OneToMany(mappedBy = "citizen")
-    private List<Report> reports = new ArrayList<>();
-
-    @OneToMany(mappedBy = "citizen")
-    private List<Notification> notifications = new ArrayList<>();
 
     protected Citizen() {
     }
@@ -30,10 +21,6 @@ public class Citizen extends User {
         return new Report(this, description, type, location);
     }
 
-    public List<Report> getMyReports() {
-        return reports;
-    }
-
     @Override
     public String getRole() {
         return "CITIZEN";
@@ -45,9 +32,5 @@ public class Citizen extends User {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public List<Notification> getNotifications() {
-        return notifications;
     }
 }
