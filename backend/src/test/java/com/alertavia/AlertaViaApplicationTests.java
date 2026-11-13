@@ -15,14 +15,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Testcontainers
 class AlertaViaApplicationTests {
+
+    @Container
+    @ServiceConnection
+    static MongoDBContainer mongo = new MongoDBContainer("mongo:7.0");
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,10 +60,11 @@ class AlertaViaApplicationTests {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + citizenToken))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("REPORTED"))
+                .andExpect(jsonPath("$.code").isNotEmpty())
                 .andExpect(jsonPath("$.photos", hasSize(1)))
                 .andExpect(jsonPath("$.address").value("1.213600, -77.281100"))
                 .andReturn().getResponse().getContentAsString();
-        long reportId = objectMapper.readTree(created).get("id").asLong();
+        String reportId = objectMapper.readTree(created).get("id").asText();
         String photoUrl = objectMapper.readTree(created).get("photos").get(0).asText();
 
         mockMvc.perform(get(photoUrl.replace("http://localhost:8080", "")))
@@ -86,7 +96,7 @@ class AlertaViaApplicationTests {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        long entityId = objectMapper.readTree(entities).get(0).get("id").asLong();
+        String entityId = objectMapper.readTree(entities).get(0).get("id").asText();
 
         mockMvc.perform(put("/api/admin/reports/" + reportId + "/entity/" + entityId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
@@ -115,7 +125,7 @@ class AlertaViaApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andReturn().getResponse().getContentAsString();
-        long notificationId = objectMapper.readTree(notifications).get(0).get("id").asLong();
+        String notificationId = objectMapper.readTree(notifications).get(0).get("id").asText();
 
         mockMvc.perform(patch("/api/notifications/" + notificationId + "/read")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + citizenToken))
@@ -125,6 +135,27 @@ class AlertaViaApplicationTests {
         mockMvc.perform(get("/api/reports/mine").header(HttpHeaders.AUTHORIZATION, "Bearer " + citizenToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void rejectsADuplicatedEmailWithConflict() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Otro ciudadano","email":"Ciudadano@AlertaVia.com","password":"clave123"}
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Ya existe una cuenta con ese correo"));
+
+        String adminToken = token(mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"admin@alertavia.com","password":"admin123"}
+                                """))
+                .andReturn().getResponse().getContentAsString());
+
+        mockMvc.perform(get("/api/reports/no-existe").header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
     }
 
     @Test

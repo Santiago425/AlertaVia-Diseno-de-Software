@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class TrackingServiceTest {
@@ -43,28 +44,34 @@ class TrackingServiceTest {
     @BeforeEach
     void setUp() {
         admin = new Administrator("Admin", "admin@alertavia.com", "secreto", "Coordinador");
+        ReflectionTestUtils.setField(admin, "id", "a-001");
         Citizen citizen = new Citizen("Laura Gómez", "laura@correo.com", "secreto", null);
+        ReflectionTestUtils.setField(citizen, "id", "c-001");
         report = citizen.createReport("Semáforo apagado", ReportType.BROKEN_TRAFFIC_LIGHT,
                 new Location(1.21, -77.28, "Calle 18 con Carrera 22"));
+        ReflectionTestUtils.setField(report, "id", "6730f1c2a9e4b5d8c1abc123");
     }
 
     @Test
     void changesStatusAndNotifiesTheCitizen() {
-        when(reportService.findReport(1L)).thenReturn(report);
+        when(reportService.findReport("r1")).thenReturn(report);
+        when(reportService.save(report)).thenReturn(report);
 
-        ReportResponse response = trackingService.changeStatus(1L, admin,
+        ReportResponse response = trackingService.changeStatus("r1", admin,
                 new StatusUpdateRequest(ReportStatus.IN_REVIEW, "Reporte verificado"));
 
         assertThat(response.status()).isEqualTo(ReportStatus.IN_REVIEW);
         assertThat(response.history()).hasSize(2);
-        verify(notificationService).notifyCitizen(eq(report), contains("En revisión"));
+        verify(reportService).save(report);
+        verify(notificationService).notifyCitizen(eq(report), contains("#ABC123 pasó a En revisión"));
     }
 
     @Test
     void usesADefaultCommentWhenTheAdminDoesNotWriteOne() {
-        when(reportService.findReport(1L)).thenReturn(report);
+        when(reportService.findReport("r1")).thenReturn(report);
+        when(reportService.save(report)).thenReturn(report);
 
-        ReportResponse response = trackingService.changeStatus(1L, admin,
+        ReportResponse response = trackingService.changeStatus("r1", admin,
                 new StatusUpdateRequest(ReportStatus.REJECTED, "  "));
 
         assertThat(response.history().get(1).comment()).isEqualTo("Estado actualizado a Rechazado");
@@ -72,25 +79,27 @@ class TrackingServiceTest {
 
     @Test
     void doesNotNotifyWhenTheTransitionIsInvalid() {
-        when(reportService.findReport(1L)).thenReturn(report);
+        when(reportService.findReport("r1")).thenReturn(report);
 
-        assertThatThrownBy(() -> trackingService.changeStatus(1L, admin,
+        assertThatThrownBy(() -> trackingService.changeStatus("r1", admin,
                 new StatusUpdateRequest(ReportStatus.RESOLVED, null)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No se puede pasar de Reportado a Resuelto");
+        verify(reportService, never()).save(any());
         verify(notificationService, never()).notifyCitizen(any(), any());
     }
 
     @Test
     void assignsTheMobilityEntityAndNotifiesTheCitizen() {
         MobilityEntity entity = new MobilityEntity("Empresa de Semaforización", "Semáforos");
-        when(reportService.findReport(1L)).thenReturn(report);
-        when(reportService.findMobilityEntity(2L)).thenReturn(entity);
+        when(reportService.findReport("r1")).thenReturn(report);
+        when(reportService.save(report)).thenReturn(report);
+        when(reportService.findMobilityEntity("m1")).thenReturn(entity);
 
-        ReportResponse response = trackingService.assignEntity(1L, 2L, admin);
+        ReportResponse response = trackingService.assignEntity("r1", "m1", admin);
 
         assertThat(response.mobilityEntity()).isEqualTo("Empresa de Semaforización");
-        assertThat(report.getReviewedBy()).isSameAs(admin);
+        assertThat(report.getReviewedById()).isEqualTo("a-001");
         verify(notificationService).notifyCitizen(eq(report), contains("Empresa de Semaforización"));
     }
 }
