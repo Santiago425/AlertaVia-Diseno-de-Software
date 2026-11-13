@@ -1,33 +1,37 @@
 services:
-  postgres:
-    image: postgres:16
-    container_name: alertavia-postgres
-    environment:
-      POSTGRES_DB: alertavia_db
-      POSTGRES_USER: alertavia
-      POSTGRES_PASSWORD: alertavia
+  mongodb:
+    image: mongo:7.0
+    container_name: alertavia-mongo
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - alertavia-data:/var/lib/postgresql/data
+      - alertavia-data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U alertavia -d alertavia_db"]
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: alertavia-mongo-express
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH: "false"
+    ports:
+      - "8081:8081"
 
   backend:
     build: ./backend
     container_name: alertavia-backend
     depends_on:
-      postgres:
+      mongodb:
         condition: service_healthy
     environment:
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: alertavia_db
-      DATABASE_USERNAME: alertavia
-      DATABASE_PASSWORD: alertavia
+      MONGODB_URI: mongodb://mongodb:27017/alertavia
       CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000
     ports:
       - "8080:8080"

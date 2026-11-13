@@ -18,15 +18,15 @@
         "vmware.vscode-boot-dev-pack",
         "dbaeumer.vscode-eslint",
         "ms-azuretools.vscode-docker",
-        "ckolkman.vscode-postgres"
+        "mongodb.mongodb-vscode"
       ]
     }
   },
-  "forwardPorts": [5173, 8080, 5432],
+  "forwardPorts": [5173, 8080, 27017],
   "portsAttributes": {
     "5173": { "label": "Frontend" },
     "8080": { "label": "Backend" },
-    "5432": { "label": "PostgreSQL" }
+    "27017": { "label": "MongoDB" }
   },
   "postCreateCommand": "cd backend && ./mvnw -B -q dependency:go-offline && cd ../frontend && npm ci"
 }

@@ -18,12 +18,12 @@ for port in 8080 5173; do
   fi
 done
 
-echo "[2/4] Iniciando PostgreSQL..."
-if pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
-  echo "      PostgreSQL ya está corriendo en el puerto 5432."
+echo "[2/4] Iniciando MongoDB..."
+if (exec 3<>/dev/tcp/localhost/27017) 2>/dev/null; then
+  echo "      MongoDB ya está corriendo en el puerto 27017."
 else
-  docker compose -f "$PROJECT_DIR/docker-compose.yml" up -d postgres
-  until docker exec alertavia-postgres pg_isready -U alertavia -d alertavia_db >/dev/null 2>&1; do
+  docker compose -f "$PROJECT_DIR/docker-compose.yml" up -d mongodb
+  until docker exec alertavia-mongo mongosh --quiet --eval "db.runCommand('ping').ok" >/dev/null 2>&1; do
     sleep 2
   done
 fi
@@ -48,6 +48,7 @@ echo "AlertaVía está corriendo:"
 echo "  Frontend: http://localhost:5173"
 echo "  Backend:  http://localhost:8080"
 echo "  Swagger:  http://localhost:8080/swagger-ui.html"
+echo "  MongoDB:  mongodb://localhost:27017/alertavia"
 echo ""
 echo "Cuentas de prueba:"
 echo "  Administrador: admin@alertavia.com / admin123"
