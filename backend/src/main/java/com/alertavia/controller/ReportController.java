@@ -46,7 +46,7 @@ public class ReportController {
     }
 
     @GetMapping("/{id}")
-    public ReportResponse getReport(@PathVariable Long id, Authentication authentication) {
+    public ReportResponse getReport(@PathVariable String id, Authentication authentication) {
         return reportService.getReport(id, authService.findByEmail(authentication.getName()));
     }
 }

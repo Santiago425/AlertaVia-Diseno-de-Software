@@ -7,7 +7,6 @@ import com.alertavia.model.MobilityEntity;
 import com.alertavia.model.Report;
 import com.alertavia.model.StatusChange;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -21,25 +20,25 @@ public class TrackingService {
         this.notificationService = notificationService;
     }
 
-    @Transactional
-    public ReportResponse changeStatus(Long reportId, Administrator admin, StatusUpdateRequest request) {
+    public ReportResponse changeStatus(String reportId, Administrator admin, StatusUpdateRequest request) {
         Report report = reportService.findReport(reportId);
         String comment = StringUtils.hasText(request.comment())
                 ? request.comment().trim()
                 : "Estado actualizado a " + request.status().label();
         StatusChange change = admin.changeStatus(report, request.status(), comment);
-        notificationService.notifyCitizen(report, "Tu reporte #" + report.getId() + " pasó a "
+        Report saved = reportService.save(report);
+        notificationService.notifyCitizen(saved, "Tu reporte #" + saved.getCode() + " pasó a "
                 + change.getNewStatus().label() + ". " + comment);
-        return ReportResponse.from(report);
+        return ReportResponse.from(saved);
     }
 
-    @Transactional
-    public ReportResponse assignEntity(Long reportId, Long entityId, Administrator admin) {
+    public ReportResponse assignEntity(String reportId, String entityId, Administrator admin) {
         Report report = reportService.findReport(reportId);
         MobilityEntity entity = reportService.findMobilityEntity(entityId);
         admin.assignEntity(report, entity);
-        notificationService.notifyCitizen(report, "Tu reporte #" + report.getId() + " fue asignado a "
+        Report saved = reportService.save(report);
+        notificationService.notifyCitizen(saved, "Tu reporte #" + saved.getCode() + " fue asignado a "
                 + entity.getName() + ".");
-        return ReportResponse.from(report);
+        return ReportResponse.from(saved);
     }
 }

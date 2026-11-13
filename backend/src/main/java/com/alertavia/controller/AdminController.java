@@ -42,14 +42,14 @@ public class AdminController {
     }
 
     @PutMapping("/reports/{id}/status")
-    public ReportResponse changeStatus(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request,
+    public ReportResponse changeStatus(@PathVariable String id, @Valid @RequestBody StatusUpdateRequest request,
                                        Authentication authentication) {
         Administrator admin = authService.findAdministrator(authentication.getName());
         return trackingService.changeStatus(id, admin, request);
     }
 
     @PutMapping("/reports/{id}/entity/{entityId}")
-    public ReportResponse assignEntity(@PathVariable Long id, @PathVariable Long entityId,
+    public ReportResponse assignEntity(@PathVariable String id, @PathVariable String entityId,
                                        Authentication authentication) {
         Administrator admin = authService.findAdministrator(authentication.getName());
         return trackingService.assignEntity(id, entityId, admin);

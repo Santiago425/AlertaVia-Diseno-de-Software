@@ -35,11 +35,11 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public Notification markAsRead(@PathVariable Long id, Authentication authentication) {
+    public Notification markAsRead(@PathVariable String id, Authentication authentication) {
         return notificationService.markAsRead(id, citizenId(authentication));
     }
 
-    private Long citizenId(Authentication authentication) {
+    private String citizenId(Authentication authentication) {
         return authService.findCitizen(authentication.getName()).getId();
     }
 }

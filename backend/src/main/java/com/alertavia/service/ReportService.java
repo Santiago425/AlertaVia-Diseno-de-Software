@@ -9,30 +9,31 @@ import com.alertavia.model.Report;
 import com.alertavia.model.ReportStatus;
 import com.alertavia.model.ReportType;
 import com.alertavia.model.User;
+import com.alertavia.repository.MobilityEntityRepository;
 import com.alertavia.repository.ReportRepository;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ReportService {
 
     private final ReportRepository reportRepository;
+    private final MobilityEntityRepository mobilityEntityRepository;
     private final LocationService locationService;
     private final PhotoStorageService photoStorageService;
 
-    public ReportService(ReportRepository reportRepository, LocationService locationService,
-                         PhotoStorageService photoStorageService) {
+    public ReportService(ReportRepository reportRepository, MobilityEntityRepository mobilityEntityRepository,
+                         LocationService locationService, PhotoStorageService photoStorageService) {
         this.reportRepository = reportRepository;
+        this.mobilityEntityRepository = mobilityEntityRepository;
         this.locationService = locationService;
         this.photoStorageService = photoStorageService;
     }
 
-    @Transactional
     public ReportResponse createReport(Citizen citizen, ReportRequest request, List<MultipartFile> photos) {
         Report report = citizen.createReport(
                 request.description().trim(),
@@ -42,23 +43,20 @@ public class ReportService {
         return ReportResponse.from(reportRepository.save(report));
     }
 
-    @Transactional(readOnly = true)
-    public List<ReportResponse> getMyReports(Long citizenId) {
+    public List<ReportResponse> getMyReports(String citizenId) {
         return reportRepository.findByCitizenIdOrderByCreatedAtDesc(citizenId).stream()
                 .map(ReportResponse::from)
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public ReportResponse getReport(Long reportId, User user) {
+    public ReportResponse getReport(String reportId, User user) {
         Report report = findReport(reportId);
-        if (user instanceof Citizen && !report.getCitizen().getId().equals(user.getId())) {
+        if (user instanceof Citizen && !report.getCitizenId().equals(user.getId())) {
             throw new AccessDeniedException("No puedes ver reportes de otros ciudadanos");
         }
         return ReportResponse.from(report);
     }
 
-    @Transactional(readOnly = true)
     public List<ReportResponse> getAllReports(ReportStatus status, ReportType type) {
         List<Report> reports = status == null
                 ? reportRepository.findAllByOrderByCreatedAtDesc()
@@ -69,7 +67,6 @@ public class ReportService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public Map<String, Object> getStatistics() {
         Map<String, Long> byStatus = new LinkedHashMap<>();
         for (ReportStatus status : ReportStatus.values()) {
@@ -86,20 +83,21 @@ public class ReportService {
         return statistics;
     }
 
-    @Transactional(readOnly = true)
     public List<MobilityEntity> getMobilityEntities() {
-        return reportRepository.findMobilityEntities();
+        return mobilityEntityRepository.findAllByOrderByNameAsc();
     }
 
-    @Transactional(readOnly = true)
-    public Report findReport(Long reportId) {
+    public Report findReport(String reportId) {
         return reportRepository.findById(reportId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reporte " + reportId + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reporte no encontrado"));
     }
 
-    @Transactional(readOnly = true)
-    public MobilityEntity findMobilityEntity(Long entityId) {
-        return reportRepository.findMobilityEntityById(entityId)
+    public MobilityEntity findMobilityEntity(String entityId) {
+        return mobilityEntityRepository.findById(entityId)
                 .orElseThrow(() -> new ResourceNotFoundException("Entidad de movilidad no encontrada"));
+    }
+
+    public Report save(Report report) {
+        return reportRepository.save(report);
     }
 }
