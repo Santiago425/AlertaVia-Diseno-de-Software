@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ReportResponse(
-        Long id,
+        String id,
+        String code,
         String description,
         ReportType type,
         ReportStatus status,
@@ -36,6 +37,7 @@ public record ReportResponse(
     public static ReportResponse from(Report report) {
         return new ReportResponse(
                 report.getId(),
+                report.getCode(),
                 report.getDescription(),
                 report.getType(),
                 report.getStatus(),
@@ -45,8 +47,8 @@ public record ReportResponse(
                 report.getLocation().getAddress(),
                 report.getLocation().getMapUrl(),
                 report.getCreatedAt(),
-                report.getCitizen().getName(),
-                report.getMobilityEntity() == null ? null : report.getMobilityEntity().getName(),
+                report.getCitizenName(),
+                report.getMobilityEntityName(),
                 report.getPhotos().stream().map(Photo::getUrl).toList(),
                 report.getHistory().stream().map(HistoryEntry::from).toList());
     }
