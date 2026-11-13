@@ -12,7 +12,7 @@ Este documento resume qué se implementó en AlertaVía, cómo se relaciona con 
 | Frontend (React 18 + Vite) | ✅ Pantallas de ciudadano y administrador |
 | Pruebas automáticas | ✅ 42 pruebas (unitarias e integración con MongoDB real) |
 | Integración continua | ✅ GitHub Actions: backend, frontend e imágenes Docker |
-| Despliegue | ✅ Backend y base de datos en Render, frontend en Vercel |
+| Despliegue | ✅ Backend en Render, base de datos en MongoDB Atlas y frontend en Vercel |
 
 ## 2. Historias de usuario implementadas
 
