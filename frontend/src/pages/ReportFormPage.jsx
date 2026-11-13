@@ -31,7 +31,7 @@ export default function ReportFormPage() {
         { type, description, latitude: location.lat, longitude: location.lng, address: address || null },
         photos,
       );
-      navigate('/mis-reportes', { state: { created: report.id } });
+      navigate('/mis-reportes', { state: { created: report.code } });
     } catch (err) {
       setError(err.message);
       setSubmitting(false);

@@ -17,7 +17,7 @@ export default function ReportCard({ report, children }) {
       <div className="report-body">
         <header className="report-header">
           <div>
-            <span className="report-id">Reporte #{report.id}</span>
+            <span className="report-id">Reporte #{report.code}</span>
             <h3>{REPORT_TYPES[report.type] ?? report.type}</h3>
           </div>
           <StatusBadge status={report.status} />
