@@ -28,7 +28,7 @@ Facilitar la comunicación entre la ciudadanía y las entidades encargadas de la
 * Asignación de reportes a las entidades de movilidad.
 * Notificaciones al ciudadano en la aplicación y por correo electrónico.
 * Panel administrativo con estadísticas y filtros por estado y tipo.
-* Arquitectura por capas en Spring Boot con PostgreSQL, frontend en React y despliegue en Render y Vercel.
+* Arquitectura por capas en Spring Boot con MongoDB, frontend en React y despliegue en Render, Vercel y MongoDB Atlas.
 
 ## **Aplicación Desplegada**
 
